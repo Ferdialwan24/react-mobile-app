@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    backgroundColor: '#1a8bd1', // Menambahkan latar belakang untuk keseluruhan layar
+    backgroundColor: 'white', // Menambahkan latar belakang untuk keseluruhan layar
   },
   tableHeader: {
     flexDirection: 'row',
@@ -69,6 +69,12 @@ const styles = StyleSheet.create({
     color: 'white',
     flex: 1,
     textAlign: 'center',
+  },
+  header: {
+    color: 'black',
+    textAlign: 'center',
+    backgroundColor: 'black',
+    height: "100%",
   },
   tableRow: {
     flexDirection: 'row',

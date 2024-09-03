@@ -1,13 +1,9 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { getDatabase, ref, onValue, set } from 'firebase/database';
+import  {app}  from './firebase'; // Pastikan Anda mengimpor app dengan benar
 
-// Definisikan tipe untuk item log
-interface LogItem {
-  id: string;
-  username: string;
-  status: string;
-  date: string;
-}
+const db = getDatabase(app); // Inisialisasi database dengan app yang benar
 
 export default function HomeScreen() {
   // State untuk mengelola status pintu
@@ -16,28 +12,29 @@ export default function HomeScreen() {
   // State untuk mengelola status mobil
   const [carState, setCarState] = useState('Outside');
   
-  // State untuk menyimpan data log
-  const [logData, setLogData] = useState<LogItem[]>([
-    // Data awal jika diperlukan
-  ]);
+  useEffect(() => {
+    const dataRef = ref(db); // Mengakses root dari database
+    const unsubscribe = onValue(dataRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setDoorState(data.doorState || 'Closed'); // Fallback ke 'Closed' jika data.doorState tidak ada
+        setCarState(data.carState || 'Outside'); // Fallback ke 'Outside' jika data.carState tidak ada
+      }
+    });
 
-  // Fungsi untuk menambah data log
-  const addLog = (status: string) => {
-    const newLog: LogItem = {
-      id: '1371082409040002', // Gantilah dengan ID yang dinamis jika diperlukan
-      username: 'Ferdi', // Gantilah dengan username yang sesuai
-      status: status,
-      date: new Date().toLocaleString('id-ID', { 
-        day: '2-digit', 
-        month: '2-digit', 
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+    // Cleanup listener on unmount
+    return () => unsubscribe();
+  }, []);
+
+  const updateDoorState = (state: 'Opened' | 'Closed') => {
+    const doorRef = ref(db, 'doorState'); // Path ke doorState di root
+    set(doorRef, state)
+      .then(() => {
+        console.log('Door state updated successfully');
       })
-    };
-    
-    setLogData([...logData, newLog]);
-    // Jika LogScreen terhubung dengan state global atau context, update data log di sana
+      .catch((error) => {
+        console.error('Error updating door state:', error);
+      });
   };
 
   return (
@@ -47,11 +44,15 @@ export default function HomeScreen() {
         <Text style={styles.statusHeader}>STATUS GARAGE</Text>
         <View style={styles.statusBox}>
           <Text style={styles.statusText}>DOOR STATE</Text>
-          <Text style={styles.statusText}>{doorState}</Text>
+          <Text style={[styles.statusText, { color: doorState === 'Opened' ? 'green' : 'red' }]}>
+            {doorState}
+          </Text>
         </View>
         <View style={styles.statusBox}>
           <Text style={styles.statusText}>CAR STATE</Text>
-          <Text style={styles.statusText}>{carState}</Text>
+          <Text style={[styles.statusText, { color: carState === 'Inside' ? 'green' : 'red' }]}>
+            {carState}
+          </Text>
         </View>
       </View>
 
@@ -59,19 +60,13 @@ export default function HomeScreen() {
       <View style={styles.controllerContainer}>
         <Text style={styles.controllerHeader}>DOOR CONTROLLER</Text>
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            setDoorState('Open');
-            addLog('Open Door');
-          }}>
+          style={styles.buttonOpen}
+          onPress={() => updateDoorState('Opened')}>
           <Text style={styles.statusText}>OPEN</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            setDoorState('Closed');
-            addLog('Close Door');
-          }}>
+          style={styles.buttonClose}
+          onPress={() => updateDoorState('Closed')}>
           <Text style={styles.statusText}>CLOSE</Text>
         </TouchableOpacity>
       </View>
@@ -84,7 +79,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1a8bd1',
+    backgroundColor: 'white',
   },
   statusContainer: {
     width: '90%',
@@ -94,13 +89,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   statusHeader: {
+    fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 18,
     color: 'white',
     marginBottom: 10,
   },
   statusBox: {
-    backgroundColor: '#FF4C4C',
+    backgroundColor: '#6b94ee',
     padding: 20,
     marginBottom: 10,
     borderRadius: 10,
@@ -123,7 +119,15 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 20,
   },
-  button: {
+  buttonOpen: {
+    backgroundColor: '#49e056',
+    marginBottom: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+    padding: 15,
+  },
+  buttonClose: {
     backgroundColor: '#FF4C4C',
     marginBottom: 20,
     borderRadius: 10,
