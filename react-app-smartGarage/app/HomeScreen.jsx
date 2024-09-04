@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-
 
 export default function HomeScreen() {
   // State untuk mengelola status pintu
   const [doorState, setDoorState] = useState('Closed');
 
   // State untuk mengelola status mobil
-  const [carState, setCarState] = useState('Outside');
-
+  const [carState, setCarState] = useState('Inside');
 
   return (
     <View style={styles.container}>

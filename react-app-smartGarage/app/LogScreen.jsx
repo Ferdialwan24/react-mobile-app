@@ -1,23 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 
-// Definisikan tipe untuk item log
-interface LogItem {
-  id: string;
-  username: string;
-  status: string;
-  date: string;
-}
-
-// Data log dengan tipe yang ditentukan
-const logData: LogItem[] = [
+// Data log
+const logData = [
   { id: '1371082409040002', username: 'Ferdi', status: 'Open Door', date: '29-08-2024' },
   // Tambahkan lebih banyak data jika diperlukan
 ];
 
 export default function LogScreen() {
   // Fungsi untuk menangani interaksi ketika baris ditekan
-  const handlePress = (item: LogItem) => {
+  const handlePress = (item) => {
     alert(`ID: ${item.id}\nUsername: ${item.username}\nStatus: ${item.status}\nDate: ${item.date}`);
   };
 
@@ -33,7 +25,7 @@ export default function LogScreen() {
       <FlatList
         data={logData}
         keyExtractor={(item) => item.id}
-        renderItem={({ item, index }: { item: LogItem; index: number }) => (
+        renderItem={({ item, index }) => (
           <TouchableOpacity onPress={() => handlePress(item)}>
             <View style={[styles.tableRow, index % 2 === 0 ? styles.evenRow : styles.oddRow]}>
               <Text style={styles.rowText}>{index + 1}</Text>

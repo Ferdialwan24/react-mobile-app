@@ -7,11 +7,11 @@ import { Ionicons } from '@expo/vector-icons';
 const Tab = createBottomTabNavigator();
 
 export default function App() {
-  return (  
+  return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap = 'home'; // Nilai default
+          let iconName = 'home'; // Nilai default
 
           if (route.name === 'Home') {
             iconName = 'home';
